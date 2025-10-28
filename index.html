@@ -85,11 +85,13 @@ function init(){
         touchY = ((e.touches[0].clientY/window.innerHeight)-0.5)*-roomSize*1.8;
         touchX = ((e.touches[0].clientX/window.innerWidth)-0.5)*roomSize*1.5;
     });
+
     window.addEventListener("mousemove",(e)=>{
         touching=true;
         touchY = ((e.clientY/window.innerHeight)-0.5)*-roomSize*1.8;
         touchX = ((e.clientX/window.innerWidth)-0.5)*roomSize*1.5;
     });
+
     window.addEventListener("mouseleave",()=>{touching=false;});
 
     window.addEventListener("resize",()=>{
@@ -103,14 +105,22 @@ function animate(){
     requestAnimationFrame(animate);
 
     if(touching){
-        // Smoothly move ball toward finger (soft attraction)
-        ball.position.x += (touchX - ball.position.x) * 0.1;
-        ball.position.y += (touchY - ball.position.y) * 0.1;
-        // Slow down velocity while controlling
-        velocity.multiplyScalar(0.95);
+        // Calculate difference to finger
+        const dx = (touchX - ball.position.x) * 0.1;
+        const dy = (touchY - ball.position.y) * 0.1;
+
+        // Move ball
+        ball.position.x += dx;
+        ball.position.y += dy;
+
+        // Update velocity to match movement for smooth release
+        velocity.x = dx*0.8 + velocity.x*0.2;
+        velocity.y = dy*0.8 + velocity.y*0.2;
+
     } else {
         // Normal floating motion
         ball.position.add(velocity);
+
         // Bounce off boundaries
         if(ball.position.x > xLimit || ball.position.x < -xLimit) velocity.x*=-1;
         if(ball.position.y > yLimit || ball.position.y < -yLimit) velocity.y*=-1;
